@@ -3,7 +3,17 @@ import 'package:path/path.dart';
 import '../models/journal.dart';
 
 class DatabaseService {
-  late Database _database;
+  static final DatabaseService _instance = DatabaseService._internal();
+  factory DatabaseService() => _instance;
+  DatabaseService._internal();
+
+  static Database? _database;
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    await initDatabase(); // jika belum, inisialisasi dulu
+    return _database!;
+  }
 
   Future<void> initDatabase() async {
     final databasePath = await getDatabasesPath();
@@ -13,27 +23,39 @@ class DatabaseService {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-          'CREATE TABLE journals(id INTEGER PRIMARY KEY, title TEXT, content TEXT, date TEXT)',
+          'CREATE TABLE journals(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT)',
         );
       },
     );
   }
 
   Future<void> addJournal(Journal journal) async {
-    await _database.insert('journals', journal.toMap());
+    final db = await database;
+    await db.insert('journals', journal.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Journal>> getJournals() async {
-    final journals = await _database.query('journals');
+    final db = await database;
+    final journals = await db.query('journals', orderBy: 'date DESC');
     return journals.map((map) => Journal.fromMap(map)).toList();
   }
 
   Future<void> updateJournal(Journal journal) async {
-    await _database.update(
+    final db = await database;
+    await db.update(
       'journals',
       journal.toMap(),
       where: 'id = ?',
       whereArgs: [journal.id],
+    );
+  }
+
+  Future<void> deleteJournal(int id) async {
+    final db = await database;
+    await db.delete(
+      'journals',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }

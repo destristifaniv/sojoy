@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 final ThemeData appTheme = ThemeData(
   scaffoldBackgroundColor: Colors.transparent, // Warna background diubah menjadi transparan
-  primaryColor: Colors.purple,
+  primaryColor: const Color.fromARGB(255, 202, 206, 254),
   colorScheme: ColorScheme.fromSwatch(
     primarySwatch: Colors.purple,
     accentColor: Colors.black,

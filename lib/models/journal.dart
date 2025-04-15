@@ -4,14 +4,8 @@ class Journal {
   String content;
   String date;
 
-  Journal({
-    this.id,
-    required this.title,
-    required this.content,
-    required this.date,
-  });
+  Journal({this.id, required this.title, required this.content, required this.date});
 
-  // Convert Journal to Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -21,7 +15,6 @@ class Journal {
     };
   }
 
-  // Convert Map to Journal
   factory Journal.fromMap(Map<String, dynamic> map) {
     return Journal(
       id: map['id'],

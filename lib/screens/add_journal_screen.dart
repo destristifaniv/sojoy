@@ -1,67 +1,153 @@
 import 'package:flutter/material.dart';
+import '../services/database_helper.dart';
+import '../models/journal.dart';
+import 'write_journal.dart';
+import '../themes/gradient_background.dart';
+import 'journal_detail_screen.dart';
 
-class AddJournalScreen extends StatelessWidget {
-  final Function(String title, String content) onSave;
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+class AddJournalScreen extends StatefulWidget {
+  @override
+  _AddJournalScreenState createState() => _AddJournalScreenState();
+}
 
-  AddJournalScreen({required this.onSave});
+class _AddJournalScreenState extends State<AddJournalScreen> {
+  List<Journal> journals = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadJournals();
+  }
+
+  Future<void> loadJournals() async {
+    setState(() => _isLoading = true);
+    try {
+      final data = await DatabaseHelper.instance.getAllJournals();
+      setState(() {
+        journals = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat jurnal: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent, // Background transparan
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, // AppBar transparan
-        title: Text('Tambah Jurnal'),
+    return GradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              const Center(
+                child: Text(
+                  'Jurnal',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, color: Colors.black54),
+                      hintText: 'Cari Jurnal',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : journals.isEmpty
+                        ? const Center(child: Text("Belum ada jurnal, tambahkan yuk!"))
+                        : ListView.builder(
+                            itemCount: journals.length,
+                            itemBuilder: (context, index) {
+                              final journal = journals[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 5,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ListTile(
+  contentPadding: const EdgeInsets.all(12),
+  title: Text(
+    journal.title,
+    style: const TextStyle(fontWeight: FontWeight.bold),
+  ),
+  subtitle: Text(journal.date),
+  trailing: Column(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: const [
+      Icon(Icons.favorite, color: Colors.red),
+      Icon(Icons.edit, color: Colors.black),
+    ],
+  ),
+  onTap: () async {
+    // Navigasi ke halaman detail jurnal
+    final updated = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => JournalDetailScreen(journal: journal),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _titleController,
-              style: TextStyle(color: Colors.white), // Warna teks input
-              decoration: InputDecoration(
-                labelText: 'Judul Jurnal',
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple.shade500),
-                ),
+    );
+
+    // Jika ada update, reload jurnal
+    if (updated == true) {
+      loadJournals();
+    }
+  },
+),
+
+                                ),
+                              );
+                            },
+                          ),
               ),
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              controller: _contentController,
-              style: TextStyle(color: Colors.white),
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: 'Isi Jurnal',
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple.shade500),
-                ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          onPressed: () async {
+            // Navigasi ke halaman tulis jurnal, lalu reload data saat kembali
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WriteJournalScreen(),
               ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                onSave(_titleController.text, _contentController.text);
-                Navigator.pop(context);
-              },
-              child: Text('Simpan'),
-              style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple.shade700, // ✅ Baru (Flutter 3.0+)
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              ),
-            ),
-          ],
+            );
+            loadJournals();
+          },
+          child: const Icon(Icons.add, color: Colors.black),
         ),
       ),
     );

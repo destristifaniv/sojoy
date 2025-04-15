@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'themes/app_theme.dart';
+// import 'themes/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/add_journal_screen.dart';
 import 'screens/settings_screen.dart';
@@ -10,17 +10,22 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SoJoy',
-      theme: appTheme,
+      // theme: appTheme,
       home: MainScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -30,9 +35,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     HomeScreen(),
-    AddJournalScreen(
-      onSave: (title, content) => print('Judul: $title, Isi: $content'),
-    ),
+    AddJournalScreen(),
     SettingsScreen(),
   ];
 
