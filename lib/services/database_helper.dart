@@ -20,20 +20,30 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,  // Update version for migration
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,  // Handle schema upgrade
     );
   }
 
   Future _createDB(Database db, int version) async {
-    await db.execute('''
+    await db.execute(''' 
       CREATE TABLE journals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT,
         content TEXT,
-        date TEXT
+        date TEXT,
+        imagePath TEXT  -- Added imagePath column
       )
     ''');
+  }
+
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute(''' 
+        ALTER TABLE journals ADD COLUMN imagePath TEXT;
+      ''');
+    }
   }
 
   Future<int> insertJournal(Journal journal) async {
@@ -44,10 +54,9 @@ class DatabaseHelper {
   Future<List<Journal>> getAllJournals() async {
     final db = await instance.database;
     final result = await db.query('journals', orderBy: 'id DESC');
-
     return result.map((map) => Journal.fromMap(map)).toList();
   }
-  
+
   Future<int> updateJournal(Journal journal) async {
     final db = await instance.database;
     return await db.update(
@@ -62,6 +71,4 @@ class DatabaseHelper {
     final db = await database;
     return await db.delete('journals', where: 'id = ?', whereArgs: [id]);
   }
-
-
 }

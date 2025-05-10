@@ -45,9 +45,9 @@ class BottomNavBar extends StatelessWidget {
               height: 56,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black,
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
-              child: const Icon(Icons.add, color: Colors.white, size: 30),
+              child: const Icon(Icons.add, color: Color.fromARGB(255, 0, 0, 0), size: 30),
             ),
           ),
           IconButton(

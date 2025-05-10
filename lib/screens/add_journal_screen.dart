@@ -4,6 +4,7 @@ import '../models/journal.dart';
 import 'write_journal.dart';
 import '../themes/gradient_background.dart';
 import 'journal_detail_screen.dart';
+import 'dart:io';
 
 class AddJournalScreen extends StatefulWidget {
   @override
@@ -99,6 +100,27 @@ class _AddJournalScreenState extends State<AddJournalScreen> {
                                   ),
                                   child: ListTile(
   contentPadding: const EdgeInsets.all(12),
+  leading: journal.imagePath != null &&
+          journal.imagePath!.isNotEmpty &&
+          File(journal.imagePath!).existsSync()
+      ? ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+          child: Image.file(
+            File(journal.imagePath!),
+            width: 60,
+            height: 60,
+            fit: BoxFit.cover,
+          ),
+        )
+        : Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(Icons.image, color: Colors.grey.shade600),
+        ),
   title: Text(
     journal.title,
     style: const TextStyle(fontWeight: FontWeight.bold),

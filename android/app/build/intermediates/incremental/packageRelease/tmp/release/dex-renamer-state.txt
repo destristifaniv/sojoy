@@ -1,0 +1,4 @@
+#Wed Apr 16 10:09:54 WIB 2025
+base.0=D\:\\Kulyah\\Semester 4\\Workshop Pengembangan Perangkat Lunak Berbasis Agile\\sojoy\\android\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

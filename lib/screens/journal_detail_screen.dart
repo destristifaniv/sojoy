@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart'; // Import image_picker
 import '../models/journal.dart';
 import '../services/database_helper.dart';
 
@@ -14,12 +16,14 @@ class JournalDetailScreen extends StatefulWidget {
 class _JournalDetailScreenState extends State<JournalDetailScreen> {
   late TextEditingController _titleController;
   late TextEditingController _contentController;
+  late String _imagePath; // Variabel untuk menyimpan path gambar
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.journal.title);
     _contentController = TextEditingController(text: widget.journal.content);
+    _imagePath = widget.journal.imagePath ?? ''; // Inisialisasi dengan path gambar lama
   }
 
   @override
@@ -29,15 +33,29 @@ class _JournalDetailScreenState extends State<JournalDetailScreen> {
     super.dispose();
   }
 
+  // Fungsi untuk memilih gambar baru
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imagePath = pickedFile.path; // Update path gambar
+      });
+    }
+  }
+
+  // Fungsi untuk menyimpan jurnal dengan gambar baru
   Future<void> _saveJournal() async {
     final updatedJournal = Journal(
       id: widget.journal.id,
       title: _titleController.text,
       content: _contentController.text,
-      date: widget.journal.date, // bisa kamu ubah juga kalau mau update date-nya
+      imagePath: _imagePath, // Gunakan path gambar yang baru
+      date: widget.journal.date,
     );
     await DatabaseHelper.instance.updateJournal(updatedJournal);
-    Navigator.pop(context, true); // kembali dan reload data
+    Navigator.pop(context, true);
   }
 
   Future<void> _deleteJournal() async {
@@ -61,10 +79,9 @@ class _JournalDetailScreenState extends State<JournalDetailScreen> {
 
     if (confirm == true) {
       await DatabaseHelper.instance.deleteJournal(widget.journal.id!);
-      Navigator.pop(context, true); // kembali ke halaman sebelumnya & reload
+      Navigator.pop(context, true);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +99,24 @@ class _JournalDetailScreenState extends State<JournalDetailScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Menampilkan gambar yang ada atau gambar default
+            if (_imagePath.isNotEmpty && File(_imagePath).existsSync())
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(_imagePath),
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            SizedBox(height: 16),
+            // Tombol untuk mengganti gambar
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: Text('Ganti Gambar'),
+            ),
+            SizedBox(height: 16),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(labelText: 'Judul'),

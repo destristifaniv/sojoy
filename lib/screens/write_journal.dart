@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+
+import '../PopUp/motivation_popup.dart';
 import '../models/journal.dart';
 import '../themes/gradient_background.dart';
-import '../services/database_helper.dart'; // Ini penting
+import '../services/database_helper.dart';
 
 class WriteJournalScreen extends StatefulWidget {
   const WriteJournalScreen({super.key});
@@ -12,8 +16,9 @@ class WriteJournalScreen extends StatefulWidget {
 }
 
 class _WriteJournalScreenState extends State<WriteJournalScreen> {
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  File? _selectedImage;
 
   @override
   void dispose() {
@@ -22,9 +27,20 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _saveJournal() async {
-    final title = _titleController.text.trim();
-    final content = _contentController.text.trim();
+    final String title = _titleController.text.trim();
+    final String content = _contentController.text.trim();
 
     if (title.isEmpty || content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -33,12 +49,22 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       return;
     }
 
-    final date = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final journal = Journal(title: title, content: content, date: date);
+    final String date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final Journal journal = Journal(
+      title: title,
+      content: content,
+      date: date,
+      imagePath: _selectedImage?.path,
+    );
 
     try {
       await DatabaseHelper.instance.insertJournal(journal);
-      Navigator.pop(context, true); // Kembali dan beri sinyal bahwa data berhasil ditambah
+
+      // Tampilkan popup motivasi
+      showDialog(
+        context: context,
+        builder: (context) => const MotivationPopup(),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal menyimpan jurnal: $e')),
@@ -72,11 +98,11 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                     filled: true,
                     fillColor: Colors.black.withOpacity(0.2),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white70),
+                      borderSide: const BorderSide(color: Colors.white70),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2),
+                      borderSide: const BorderSide(color: Colors.white, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -94,12 +120,40 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                     filled: true,
                     fillColor: Colors.black.withOpacity(0.2),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white70),
+                      borderSide: const BorderSide(color: Colors.white70),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2),
+                      borderSide: const BorderSide(color: Colors.white, width: 2),
                       borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (_selectedImage != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: FileImage(_selectedImage!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.image, color: Colors.white),
+                    label: const Text('Pilih Gambar dari Galeri', style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
