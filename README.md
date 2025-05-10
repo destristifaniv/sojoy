@@ -1,4 +1,4 @@
-# sojoy2
+# SoJoy
 
 A new Flutter project.
 
