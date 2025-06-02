@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:provider/provider.dart';
+import '../themes/theme_provider.dart';
 
 class CalendarWidget extends StatefulWidget {
   const CalendarWidget({super.key});
@@ -14,11 +16,18 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    final primaryColor = themeProvider.primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyMedium?.color;
+    final iconColor = Theme.of(context).iconTheme.color;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent, // Latar belakang transparan
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -34,7 +43,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
+                icon: Icon(Icons.arrow_back_ios, color: iconColor),
                 onPressed: () {
                   setState(() {
                     _focusedDay = DateTime(
@@ -46,13 +55,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
               ),
               Text(
                 _formatMonth(_focusedDay),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  color: textColor,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.arrow_forward_ios),
+                icon: Icon(Icons.arrow_forward_ios, color: iconColor),
                 onPressed: () {
                   setState(() {
                     _focusedDay = DateTime(
@@ -79,19 +89,23 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             headerVisible: false,
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
-                color: Colors.red,
+                color: primaryColor,
                 shape: BoxShape.circle,
               ),
               selectedDecoration: BoxDecoration(
-                color: Colors.black,
+                color: primaryColor.withOpacity(0.7),
                 shape: BoxShape.circle,
               ),
-              defaultTextStyle: const TextStyle(color: Colors.black),
-              weekendTextStyle: const TextStyle(color: Colors.black),
+              defaultTextStyle: TextStyle(color: textColor),
+              weekendTextStyle: TextStyle(color: textColor),
+              outsideTextStyle: TextStyle(color: textColor?.withOpacity(0.5)),
+              disabledTextStyle: TextStyle(color: textColor?.withOpacity(0.3)),
+              selectedTextStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              todayTextStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
-            daysOfWeekStyle: const DaysOfWeekStyle(
-              weekdayStyle: TextStyle(color: Colors.black),
-              weekendStyle: TextStyle(color: Colors.black),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: TextStyle(color: textColor),
+              weekendStyle: TextStyle(color: textColor),
             ),
             calendarFormat: CalendarFormat.month,
             availableGestures: AvailableGestures.none,

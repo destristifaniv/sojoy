@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../PopUp/motivation_popup.dart';
 import '../models/journal.dart';
 import '../themes/gradient_background.dart';
 import '../services/database_helper.dart';
+import '../themes/theme_provider.dart'; // Import ThemeProvider
 
 class WriteJournalScreen extends StatefulWidget {
   const WriteJournalScreen({super.key});
@@ -59,8 +61,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
     try {
       await DatabaseHelper.instance.insertJournal(journal);
-
-      // Tampilkan popup motivasi
       showDialog(
         context: context,
         builder: (context) => const MotivationPopup(),
@@ -74,14 +74,25 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final hintTextColor = Theme.of(context).hintColor;
+    final textFieldBackgroundColor = isDarkMode ? Colors.grey.shade800.withOpacity(0.5) : Colors.white.withOpacity(0.5);
+    final textFieldBorderColor = Theme.of(context).inputDecorationTheme.border?.borderSide.color;
+    final focusedTextFieldBorderColor = Theme.of(context).colorScheme.primary;
+    final buttonBackgroundColor = Theme.of(context).colorScheme.secondary.withOpacity(0.2);
+    final buttonTextColor = Theme.of(context).textTheme.labelLarge?.color;
+    final iconColor = Theme.of(context).iconTheme.color;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text('Tambah Jurnal', style: TextStyle(color: Colors.black)),
-          iconTheme: const IconThemeData(color: Colors.black),
+          title: Text('Tambah Jurnal', style: TextStyle(color: Theme.of(context).appBarTheme.titleTextStyle?.color)),
+          iconTheme: Theme.of(context).appBarTheme.iconTheme,
           elevation: 0,
         ),
         body: GradientBackground(
@@ -91,18 +102,18 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
               children: [
                 TextFormField(
                   controller: _titleController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     labelText: 'Judul Jurnal',
-                    labelStyle: const TextStyle(color: Colors.white70),
+                    labelStyle: TextStyle(color: hintTextColor),
                     filled: true,
-                    fillColor: Colors.black.withOpacity(0.2),
+                    fillColor: textFieldBackgroundColor,
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white70),
+                      borderSide: BorderSide(color: textFieldBorderColor ?? Colors.grey),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white, width: 2),
+                      borderSide: BorderSide(color: focusedTextFieldBorderColor, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -110,21 +121,21 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _contentController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: textColor),
                   maxLines: 10,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
                     labelText: 'Isi Jurnal',
-                    labelStyle: const TextStyle(color: Colors.white70),
+                    labelStyle: TextStyle(color: hintTextColor),
                     alignLabelWithHint: true,
                     filled: true,
-                    fillColor: Colors.black.withOpacity(0.2),
+                    fillColor: textFieldBackgroundColor,
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white70),
+                      borderSide: BorderSide(color: textFieldBorderColor ?? Colors.grey),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white, width: 2),
+                      borderSide: BorderSide(color: focusedTextFieldBorderColor, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -146,10 +157,10 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _pickImage,
-                    icon: const Icon(Icons.image, color: Colors.white),
-                    label: const Text('Pilih Gambar dari Galeri', style: TextStyle(color: Colors.white)),
+                    icon: Icon(Icons.image, color: iconColor),
+                    label: Text('Pilih Gambar dari Galeri', style: TextStyle(color: buttonTextColor)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: buttonBackgroundColor,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -163,15 +174,15 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                   child: ElevatedButton(
                     onPressed: _saveJournal,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: buttonBackgroundColor,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Simpan',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: buttonTextColor),
                     ),
                   ),
                 ),

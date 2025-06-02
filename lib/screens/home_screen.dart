@@ -33,6 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = Theme.of(context).textTheme.bodyMedium?.color;
+    final hintTextColor = Theme.of(context).hintColor;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardColor = Theme.of(context).cardColor.withOpacity(0.2);
+    final iconColor = Theme.of(context).iconTheme.color;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: GradientBackground(
@@ -48,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -56,17 +62,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const TextField(
+                  child: TextField(
                     decoration: InputDecoration(
-                      icon: Icon(Icons.search, color: Color.fromARGB(255, 0, 0, 0)),
+                      icon: Icon(Icons.search, color: iconColor),
                       hintText: 'Cari Jurnal',
-                      hintStyle: TextStyle(color: Color.fromARGB(179, 5, 5, 5)),
+                      hintStyle: TextStyle(color: hintTextColor),
                       border: InputBorder.none,
                     ),
-                    style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                    style: TextStyle(color: textColor),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -76,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: cardColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           padding: const EdgeInsets.all(16),
@@ -85,24 +91,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
                                       'Ada apa hari ini..?',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 0, 0, 0),
+                                        color: textColor,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       '..............................',
-                                      style: TextStyle(color: Color.fromARGB(179, 0, 0, 0)),
+                                      style: TextStyle(color: hintTextColor),
                                     ),
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.edit_note, size: 40, color: Color.fromARGB(255, 0, 0, 0)),
+                              Icon(Icons.edit_note, size: 40, color: iconColor),
                             ],
                           ),
                         ),
@@ -116,19 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemBuilder: (context, index) {
                             final journal = journals[index];
                             return Card(
-                              color: Colors.white.withOpacity(0.2),
+                              color: cardColor,
                               margin: const EdgeInsets.symmetric(vertical: 6),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: ListTile(
-                                leading: const Icon(Icons.book, color: Colors.white),
+                                leading: Icon(Icons.book, color: iconColor),
                                 title: Text(journal.title,
-                                    style: const TextStyle(color: Colors.white)),
+                                    style: TextStyle(color: textColor)),
                                 subtitle: Text(journal.content,
-                                    style: const TextStyle(color: Colors.white70)),
+                                    style: TextStyle(color: textColor?.withOpacity(0.7))),
                                 trailing: Text(journal.date,
-                                    style: const TextStyle(color: Colors.white54)),
+                                    style: TextStyle(color: textColor?.withOpacity(0.5))),
                               ),
                             );
                           },

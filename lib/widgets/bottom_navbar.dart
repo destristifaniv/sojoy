@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../themes/theme_provider.dart'; // Import ThemeProvider
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -12,14 +14,35 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    final primaryColor = themeProvider.primaryColor;
+    final useDefaultNavbar = themeProvider.useDefaultNavbar;
+
+    Color iconColor;
+    Color unselectedIconColor;
+    Color navBarBackgroundColor;
+    Color addButtonColor;
+    Color addButtonIconColor;
+
+    if (useDefaultNavbar) {
+      navBarBackgroundColor = Colors.white.withOpacity(0.4);
+      iconColor = Colors.black;
+      unselectedIconColor = const Color.fromARGB(255, 255, 255, 255);
+      addButtonColor = const Color.fromARGB(255, 255, 255, 255);
+      addButtonIconColor = const Color.fromARGB(255, 0, 0, 0);
+    } else {
+      iconColor = isDarkMode ? Colors.white : Colors.black;
+      unselectedIconColor = isDarkMode ? Colors.white70 : Colors.black54;
+      navBarBackgroundColor = Theme.of(context).colorScheme.surface.withOpacity(0.4);
+      addButtonColor = primaryColor;
+      addButtonIconColor = Theme.of(context).colorScheme.onPrimary;
+    }
+
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.4), // semi transparan
-        // borderRadius: const BorderRadius.only(
-        //   topLeft: Radius.circular(24),
-        //   topRight: Radius.circular(24),
-        // ),
+        color: navBarBackgroundColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -33,7 +56,7 @@ class BottomNavBar extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.home,
-              color: currentIndex == 0 ? Colors.black : const Color.fromARGB(255, 255, 255, 255),
+              color: currentIndex == 0 ? iconColor : unselectedIconColor,
               size: 28,
             ),
             onPressed: () => onTap(0),
@@ -43,17 +66,17 @@ class BottomNavBar extends StatelessWidget {
             child: Container(
               width: 56,
               height: 56,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: addButtonColor,
               ),
-              child: const Icon(Icons.add, color: Color.fromARGB(255, 0, 0, 0), size: 30),
+              child: Icon(Icons.add, color: addButtonIconColor, size: 30),
             ),
           ),
           IconButton(
             icon: Icon(
               Icons.settings,
-              color: currentIndex == 2 ? Colors.black : const Color.fromARGB(255, 255, 255, 255),
+              color: currentIndex == 2 ? iconColor : unselectedIconColor,
               size: 28,
             ),
             onPressed: () => onTap(2),

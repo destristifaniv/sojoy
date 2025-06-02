@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-// import 'themes/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:sojoy/themes/theme_provider.dart'; // Import ThemeProvider
 import 'screens/home_screen.dart';
 import 'screens/add_journal_screen.dart';
 import 'screens/settings_screen.dart';
 import 'widgets/bottom_navbar.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,10 +20,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context); // Tambahkan ini untuk mengakses tema
+
     return MaterialApp(
+      key: ValueKey(themeProvider.themeMode),
       title: 'SoJoy',
-      // theme: appTheme,
-      home: MainScreen(),
+      theme: themeProvider.lightTheme, // Gunakan tema dari ThemeProvider
+      darkTheme: themeProvider.darkTheme, // Gunakan tema gelap dari ThemeProvider
+      themeMode: themeProvider.themeMode, // Gunakan themeMode dari ThemeProvider
+      home: const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -34,9 +45,9 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    HomeScreen(),
+    const HomeScreen(),
     AddJournalScreen(),
-    SettingsScreen(),
+    const SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -52,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
           end: Alignment.bottomCenter,
           colors: [
             Colors.purple.shade800, // Warna ungu tua di atas
-            Colors.grey.shade900,    // Warna abu-abu tua di bawah
+            Colors.grey.shade900,       // Warna abu-abu tua di bawah
           ],
         ),
       ),
